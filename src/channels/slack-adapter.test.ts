@@ -1832,7 +1832,6 @@ test("slack adapter updates Skill task title when the loaded skill arrives", asy
     message: "Preparing tool: Skill",
     toolCallId: "call-skill",
     toolName: "Skill",
-    toolTitle: "Skill: working-on-letta-code-channels",
     toolDetails: "working-on-letta-code-channels",
   });
 
@@ -2198,7 +2197,6 @@ test("slack adapter keeps separate task rows for parallel tool progress", async 
     message: "Searching web",
     toolCallId: "call-web",
     toolName: "web_search",
-    toolTitle: "Searching articles",
     toolDetails: "letta blog",
   });
   await adapter.handleTurnProgressEvent?.({
@@ -2244,11 +2242,11 @@ test("slack adapter keeps separate task rows for parallel tool progress", async 
       chunks: [
         expect.objectContaining({
           type: "plan_update",
-          title: "Searching articles",
+          title: "Searching the web",
         }),
         expect.objectContaining({
           id: "task_call-web",
-          title: "Searching articles",
+          title: "Searching the web",
           details: "letta blog",
           status: "in_progress",
         }),
@@ -2703,7 +2701,6 @@ test("slack adapter keeps one active progress card slot until finalized", async 
     message: "Searching web",
     toolCallId: "call-2",
     toolName: "web_search",
-    toolTitle: "Search the web",
     toolDetails: "letta slack progress cards",
   });
 
@@ -3142,7 +3139,6 @@ test("slack adapter finishes an active progress card when MessageChannel sends",
     message: "Searching web",
     toolCallId: "call-web",
     toolName: "web_search",
-    toolTitle: "Searching articles",
     toolDetails: "letta blog",
   });
   await adapter.sendMessage({
@@ -3165,7 +3161,7 @@ test("slack adapter finishes an active progress card when MessageChannel sends",
     chunks: expect.arrayContaining([
       expect.objectContaining({
         id: "task_call-web",
-        title: "Searched articles",
+        title: "Searched the web",
         status: "complete",
       }),
       expect.objectContaining({
@@ -3223,7 +3219,6 @@ test("slack adapter shows responding while MessageChannel runs with an active pr
     message: "Searching web",
     toolCallId: "call-web",
     toolName: "web_search",
-    toolTitle: "Searching articles",
     toolDetails: "letta blog",
   });
   await adapter.handleTurnProgressEvent?.({
