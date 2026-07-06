@@ -2151,7 +2151,7 @@ test("slack adapter anchors direct message progress to the inbound message", asy
       },
       {
         type: "plan_update",
-        title: "Completed",
+        title: "Done in the DM.",
       },
     ],
   });
@@ -2540,7 +2540,7 @@ test("slack adapter does not create fallback cards after stream append failure",
       },
       {
         type: "plan_update",
-        title: "Completed",
+        title: "Done.",
       },
     ]),
   );
@@ -2873,7 +2873,7 @@ test("slack adapter treats already-closed stream stop errors as benign", async (
       }),
       expect.objectContaining({
         type: "plan_update",
-        title: "Completed",
+        title: "Done.",
       }),
     ]),
   });
@@ -3032,7 +3032,7 @@ test("slack adapter keeps failed tool rows from failing completed progress strea
       }),
       expect.objectContaining({
         type: "plan_update",
-        title: "Completed",
+        title: "Done — command status was expected.",
       }),
     ]),
   );
@@ -3166,7 +3166,7 @@ test("slack adapter finishes an active progress card when MessageChannel sends",
       }),
       expect.objectContaining({
         type: "plan_update",
-        title: "Completed",
+        title: "Done — found it.",
       }),
     ]),
   });
@@ -3297,7 +3297,7 @@ test("slack adapter shows responding while MessageChannel runs with an active pr
       }),
       expect.objectContaining({
         type: "plan_update",
-        title: "Completed",
+        title: "Done — found it.",
       }),
     ]),
   });
