@@ -1748,16 +1748,21 @@ export function createSlackAdapter(
     return getLifecycleReplyKey(source);
   }
 
-  function formatSlackLifecycleErrorMessage(errorText: string): string {
+  function formatSlackLifecycleErrorMessage(
+    errorText: string,
+    runId?: string | null,
+  ): string {
     return formatChannelLifecycleErrorMessage(errorText, {
       codeBlock: true,
       maxLength: SLACK_LIFECYCLE_ERROR_TEXT_MAX,
+      runId,
     });
   }
 
   async function sendLifecycleErrorReply(
     source: ChannelTurnSource,
     errorText: string,
+    runId?: string | null,
   ): Promise<void> {
     const replyToMessageId = resolveSlackSourceThreadTs(source);
 
@@ -1765,7 +1770,7 @@ export function createSlackAdapter(
     const slackClient = await ensureWriteClient();
     const response = await slackClient.chat.postMessage({
       channel: source.chatId,
-      text: formatSlackLifecycleErrorMessage(errorText),
+      text: formatSlackLifecycleErrorMessage(errorText, runId),
       ...(replyToMessageId ? { thread_ts: replyToMessageId } : {}),
     });
     rememberMessageThread(response.ts, replyToMessageId ?? null);
@@ -3092,7 +3097,7 @@ export function createSlackAdapter(
       await Promise.all(
         Array.from(uniqueReplySources.values()).map(async (source) => {
           try {
-            await sendLifecycleErrorReply(source, errorText);
+            await sendLifecycleErrorReply(source, errorText, event.runId);
           } catch (error) {
             console.warn(
               `[Slack] Failed to post lifecycle error for ${source.chatId}:`,
@@ -3242,12 +3247,18 @@ export function createSlackAdapter(
       }
 
       const slackApp = await ensureApp();
+      const threadAttachmentParams = {
+        accountId: config.accountId,
+        token: config.botToken,
+        transcribeVoice: config.transcribeVoice === true,
+      };
       const starter =
         shouldHydrateExistingThreadContext && isFirstRouteTurn
           ? await resolveSlackThreadStarter({
               channelId: msg.chatId,
               threadTs: msg.threadId,
               client: slackApp.client,
+              ...threadAttachmentParams,
             })
           : null;
       const resolvedHistory = shouldHydrateExistingThreadContext
@@ -3257,12 +3268,14 @@ export function createSlackAdapter(
             client: slackApp.client,
             currentMessageTs: msg.messageId,
             limit: INITIAL_SLACK_THREAD_HISTORY_LIMIT,
+            ...threadAttachmentParams,
           })
         : await resolveSlackChannelHistory({
             channelId: msg.chatId,
             beforeTs: msg.messageId,
             client: slackApp.client,
             limit: INITIAL_SLACK_THREAD_HISTORY_LIMIT,
+            ...threadAttachmentParams,
           });
       // Existing routed thread turns already deliver human messages into the
       // Letta conversation. Bot-authored Slack messages are intentionally not
@@ -3322,6 +3335,9 @@ export function createSlackAdapter(
                     starter.botId,
                   ),
                   text: starter.text,
+                  ...(starter.attachments?.length
+                    ? { attachments: starter.attachments }
+                    : {}),
                 },
               }
             : {}),
@@ -3335,6 +3351,9 @@ export function createSlackAdapter(
                     entry.botId,
                   ),
                   text: entry.text,
+                  ...(entry.attachments?.length
+                    ? { attachments: entry.attachments }
+                    : {}),
                 })),
               }
             : {}),

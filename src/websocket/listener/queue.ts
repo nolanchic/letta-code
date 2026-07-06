@@ -167,6 +167,7 @@ async function dispatchChannelTurnLifecycleEvent(
         sources: ChannelTurnSource[];
         outcome: ChannelTurnOutcome;
         error?: string;
+        runId?: string;
       },
 ): Promise<void> {
   if (event.sources.length === 0) {
@@ -189,6 +190,7 @@ async function dispatchChannelTurnLifecycleEvent(
     sources: event.sources,
     outcome: event.outcome,
     ...(event.error ? { error: event.error } : {}),
+    ...(event.runId ? { runId: event.runId } : {}),
   });
 }
 
@@ -582,6 +584,9 @@ async function drainQueuedMessages(
             sources: channelTurnSources,
             outcome,
             ...(lifecycleError ? { error: lifecycleError } : {}),
+            ...(runtime.lastTerminalLoopErrorRunId
+              ? { runId: runtime.lastTerminalLoopErrorRunId }
+              : {}),
           });
         }
       }

@@ -167,6 +167,7 @@ export function createConversationRuntime(
     recoveredApprovalState: null,
     lastStopReason: null,
     lastTerminalLoopErrorMessage: null,
+    lastTerminalLoopErrorRunId: null,
     isProcessing: false,
     activeWorkingDirectory: null,
     expectedWorktreePath: null,
